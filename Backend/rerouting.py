@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os
 import requests
 from dotenv import load_dotenv
@@ -93,3 +94,6 @@ if __name__ == "__main__":
     result = run_smart_prompt("Why is saving water important?")
     print("\n🤖 AI OUTPUT:")
     print(result['response'] if isinstance(result, dict) else result)
+=======
+#File to reroute the prompts to different servers
+>>>>>>> bdbfde2f66ae091c1f77dd8d0a177b64782bb21b
