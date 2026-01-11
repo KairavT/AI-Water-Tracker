@@ -125,7 +125,7 @@ function App() {
         tokensSaved: prev.tokensSaved + tokensSavedThisTurn,
         waterFromTokens: prev.waterFromTokens + (tokensSavedThisTurn * 5),
         waterFromCooling: prev.waterFromCooling + water_saved_ml,
-        totalWater: prev.totalWater + (tokensSavedThisTurn * 5) + water_saved_ml
+        totalWater: water_saved_ml * 0.001
       }));
 
       // Add Assistant Message with Routing Proof
