@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydro-Logic AI</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f0f8ff; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { color: #0077be; }
+        textarea { width: 100%; height: 100px; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { background-color: #0077be; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #005f99; }
+        
+        .result-box { margin-top: 20px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f9f9f9; display: none; }
+        .badge { display: inline-block; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-bottom: 10px; }
+        .green-badge { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        
+        .loading { display: none; color: #666; font-style: italic; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💧 Hydro-Logic Router</h1>
+        <p>Your prompt will be physically routed to the coldest, most water-efficient data center available right now.</p>
+        
+        <form id="aiForm">
+            <textarea id="promptInput" placeholder="Ask AI something (e.g., 'How can I save water at home?')..." required></textarea>
+            <br>
+            <button type="submit">Send via Green Route 🚀</button>
+        </form>
+
+        <div id="loading" class="loading">Checking global weather satellites & routing traffic...</div>
+
+        <div id="result" class="result-box">
+            <div class="badge green-badge" id="routeInfo">ROUTED TO: Calculating...</div>
+            <h3>AI Response:</h3>
+            <p id="aiResponseText"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('aiForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const prompt = document.getElementById('promptInput').value;
+            const resultBox = document.getElementById('result');
+            const loading = document.getElementById('loading');
+            
+            // Show loading, hide old results
+            loading.style.display = 'block';
+            resultBox.style.display = 'none';
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+
+                const data = await response.json();
+                
+                // Update UI with Data
+                document.getElementById('aiResponseText').innerText = data.response;
+                document.getElementById('routeInfo').innerText = `✅ ROUTED TO: ${data.routed_to} | ${data.weather_logic}`;
+                
+                // Show Result
+                resultBox.style.display = 'block';
+            } catch (error) {
+                alert("Error connecting to server.");
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
