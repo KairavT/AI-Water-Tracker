@@ -7,7 +7,7 @@ from google import genai
 load_dotenv()
 
 # --- CONFIGURATION ---
-PROJECT_ID = "deltahacks-484006"
+PROJECT_ID = "gen-lang-client-0397971089"
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
@@ -55,11 +55,11 @@ def run_smart_prompt(prompt):
     # 2. Decide Location & Calculate Water Savings
     if t_montreal < t_netherlands:
         target = DATA_CENTERS['montreal']
-        reason = f"Montreal is colder ({t_montreal}°C vs {t_netherlands}°C)"
+        reason = f"Montreal is the coldest available server ({t_montreal}°C)"
         water_saved = 350 
     else:
         target = DATA_CENTERS['netherlands']
-        reason = f"Netherlands is colder ({t_netherlands}°C vs {t_montreal}°C)"
+        reason = f"Netherlands is the coldest available server. ({t_netherlands}°C)"
         water_saved = 350
         
     print(f"✅ OPTIMIZATION: Routing to {target['name']}")
