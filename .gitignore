@@ -1,2 +1,29 @@
+# Security
 .env
-__pycache__/
+Backend/.env
+Frontend/.env
+
+# Python
+Backend/__pycache__/
+Backend/venv/
+
+# Node/Frontend
+Frontend/node_modules/
+Frontend/dist/
+
+# OS Junk (Keeps repo clean for Mac/Windows users)
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE Settings (Optional - prevents your personal VS Code settings from annoying others)
+.vscode/
+.idea/
+
+# Safety: Block common Google Key files if you accidentally drag them in
+*.json_key
+credentials.json
+client_secret.json

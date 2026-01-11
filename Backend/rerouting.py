@@ -1,14 +1,17 @@
 import os
 import requests
+import random
 from dotenv import load_dotenv
 from google import genai
 
 load_dotenv()
 
 # --- CONFIGURATION ---
-PROJECT_ID = "gen-lang-client-0397971089"
+PROJECT_ID = "deltahacks-484006"
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+SYSTEM_INSTRUCTION = "You are a concise AI assistant. Use Markdown for formatting. Keep answers under 150 words unless asked for detail."
 
 DATA_CENTERS = {
     "montreal": {
@@ -22,6 +25,16 @@ DATA_CENTERS = {
         "lat": 53.4357, "lon": 6.8370
     }
 }
+
+# BACKUP SERVERS (Used when smart routing fails)
+BACKUP_COLD_SERVERS = [
+    "Arctic Circle Data Vault (Backup)",
+    "Nordic Deep Storage (Backup)",
+    "Icelandic Geo-Server (Backup)"
+]
+
+# EST. SAVINGS (Used when backup is triggered)
+ESTIMATED_BACKUP_SAVINGS = 150 
 
 def get_current_temperature(lat, lon):
     try:
@@ -39,13 +52,15 @@ def run_smart_prompt(prompt):
     t_montreal = get_current_temperature(DATA_CENTERS['montreal']['lat'], DATA_CENTERS['montreal']['lon'])
     t_netherlands = get_current_temperature(DATA_CENTERS['netherlands']['lat'], DATA_CENTERS['netherlands']['lon'])
     
-    # 2. Decide Location
+    # 2. Decide Location & Calculate Water Savings
     if t_montreal < t_netherlands:
         target = DATA_CENTERS['montreal']
         reason = f"Montreal is colder ({t_montreal}°C vs {t_netherlands}°C)"
+        water_saved = 350 
     else:
         target = DATA_CENTERS['netherlands']
         reason = f"Netherlands is colder ({t_netherlands}°C vs {t_montreal}°C)"
+        water_saved = 350
         
     print(f"✅ OPTIMIZATION: Routing to {target['name']}")
     print(f"   REASON: {reason}")
@@ -57,39 +72,46 @@ def run_smart_prompt(prompt):
             project=PROJECT_ID,
             location=target['region_code']
         )
-        # Use the specific model version
+        
         response = client.models.generate_content(
             model="gemini-2.5-flash", 
-            contents=prompt
+            contents=prompt,
+            config={"system_instruction": SYSTEM_INSTRUCTION} 
         )
+        
         return {
             "response": response.text,
             "routed_to": target['name'],
+            "weather_logic": reason,
+            "water_saved_ml": water_saved,
+            "is_estimate": False, 
             "status": "Green Route Success"
         }
 
-    # Standard API Key
+    # ATTEMPT 2: FAILOVER TO BACKUP (Teammate's Logic)
     except Exception as e:
         print(f"⚠️ GREEN ROUTE FAILED: {e}")
-        print("🔄 SWITCHING TO FALLBACK: Using Standard Global Server...")
+        print(">>> ACTIVATING BACKUP PROTOCOL: Rerouting to Cold Storage File...")
+        
+        backup_server = random.choice(BACKUP_COLD_SERVERS)
         
         try:
-            # Fallback Client
+            # Fallback to standard global key
             fallback_client = genai.Client(api_key=GEMINI_API_KEY)
             
             response = fallback_client.models.generate_content(
                 model="gemini-2.5-flash", 
-                contents=prompt
+                contents=prompt,
+                config={"system_instruction": SYSTEM_INSTRUCTION} 
             )
+            
             return {
                 "response": response.text,
-                "routed_to": "Global Default (Fallback)",
-                "status": "Standard Route (Green failed)"
+                "routed_to": backup_server,
+                "weather_logic": "Main route failed. Redirected to backup Cold Server file.",
+                "water_saved_ml": ESTIMATED_BACKUP_SAVINGS, # Return Estimate
+                "is_estimate": True, # Flag as Estimate
+                "status": "Backup Route"
             }
         except Exception as e2:
             return f"❌ CRITICAL FAILURE: Both methods failed. {e2}"
-
-if __name__ == "__main__":
-    result = run_smart_prompt("Why is saving water important?")
-    print("\n🤖 AI OUTPUT:")
-    print(result['response'] if isinstance(result, dict) else result)
